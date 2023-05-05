@@ -1,0 +1,21 @@
+name: Sync Github Issue to Jira
+description: Allow your Github Issue to Jira automatically.
+author: Atsushi Miyamoto
+runs:
+ using: "composite"
+branding:
+ icon: plus
+ color: green
+inputs:
+ github_owner:
+   description: 'A Github Owner'
+   required: true
+ github_repo:
+   description: 'A Github Repo'
+   required: true
+ github_token:
+   description: 'A prefix string'
+   required: true
+ suffix:
+   description: 'A suffix string'
+   required: true
