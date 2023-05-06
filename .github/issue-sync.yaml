@@ -1,0 +1,22 @@
+name: Sync issues internally
+on:
+  issues:
+    types: [labeled]
+jobs:
+  issue-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '^1.19.0' 
+      - name: Sync
+        uses: atsushii/github-issue-2-jira@main
+        env:
+          GITHUB_OWNER: atsushii
+          GITHUB_REPO: github-issue-to-jira
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JIRA_HOSTNAME: ${{ secrets.JIRA_HOSTNAME }}
+          JIRA_AUTH_TOKEN: ${{ secrets.JIRA_AUTH_TOKEN }}
+          INPUT_JIRA_PROJECT_KEY: TEST
