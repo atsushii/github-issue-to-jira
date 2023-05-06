@@ -48,26 +48,17 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: |
-        GITHUB_OWNER="${{ inputs.github_owner }}"
-        GITHUB_REPO="${{ inputs.github_repo }}"
-        GITHUB_TOKEN="${{ inputs.github_token }}"
-        GITHUB_ISSUE_NUMBER="${{ inputs.github_issue_number }}"
-        JIRA_PROJECT_KEY="${{ inputs.jira_project_key }}"
-        JIRA_HOSTNAME="${{ inputs.jira_hostname }}"
-        JIRA_AUTH_TOKEN="${{ inputs.jira_auth_token }}"
-        JIRA_ISSUE_TYPE="${{ inputs.jira_issue_type }}"
-        SYNCED_LABEL="${{ inputs.synced_label }}"
-        ACCEPTED_LABEL="${{ inputs.accepted_label }}"
-        echo "GITHUB_OWNER=${GITHUB_OWNER}" >> $GITHUB_ENV
-        echo "GITHUB_REPO=${GITHUB_REPO}" >> $GITHUB_ENV
-        echo "GITHUB_TOKEN=${GITHUB_TOKEN}" >> $GITHUB_ENV
-        echo "GITHUB_ISSUE_NUMBER=${GITHUB_ISSUE_NUMBER}" >> $GITHUB_ENV
-        echo "JIRA_PROJECT_KEY=${JIRA_PROJECT_KEY}" >> $GITHUB_ENV
-        echo "JIRA_HOSTNAME=${JIRA_HOSTNAME}" >> $GITHUB_ENV
-        echo "JIRA_AUTH_TOKEN=${JIRA_AUTH_TOKEN}" >> $GITHUB_ENV
-        echo "JIRA_ISSUE_TYPE=${JIRA_ISSUE_TYPE}" >> $GITHUB_ENV
-        echo "SYNCED_LABEL=${SYNCED_LABEL}" >> $GITHUB_ENV
-        echo "ACCEPTED_LABEL=${ACCEPTED_LABEL}" >> $GITHUB_ENV
-        go run ${{ github.action_path }}/main.go
+    - name: sync      
+      env:
+        GITHUB_OWNER: ${{ inputs.github_owner }}
+        GITHUB_REPO: ${{ inputs.github_repo }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        GITHUB_ISSUE_NUMBER: ${{ inputs.github_issue_number }}
+        JIRA_PROJECT_KEY: ${{ inputs.jira_project_key }}
+        JIRA_HOSTNAME: ${{ inputs.jira_hostname }}
+        JIRA_AUTH_TOKEN: ${{ inputs.jira_auth_token }}
+        JIRA_ISSUE_TYPE: ${{ inputs.jira_issue_type }}
+        SYNCED_LABEL: ${{ inputs.synced_label }}
+        ACCEPTED_LABEL: ${{ inputs.accepted_label }}
+      run: go run ${{ github.action_path }}/main.go
       shell: bash
