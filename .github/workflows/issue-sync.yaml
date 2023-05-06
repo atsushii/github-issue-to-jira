@@ -20,4 +20,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           jira_hostname: ${{ secrets.JIRA_HOSTNAME }}
           jira_auth_token: ${{ secrets.JIRA_AUTH_TOKEN }}
+          jira_auth_email: ${{ secrets.JIRA_AUTH_EMAIL }}
           jira_project_key: TEST

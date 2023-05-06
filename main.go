@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -29,11 +30,10 @@ type IssueKey struct {
 }
 
 type IssueFields struct {
-	Project     IssueKey   `json:"project"`
-	Summary     string     `json:"summary"`
-	Description string     `json:"description"`
-	IssueUrl    IssueValue `json:"customfield_10016"`
-	IssueType   IssueName  `json:"issuetype"`
+	Project     IssueKey  `json:"project"`
+	Summary     string    `json:"summary"`
+	Description string    `json:"description"`
+	IssueType   IssueName `json:"issuetype"`
 }
 
 type NewJiraIssue struct {
@@ -61,10 +61,10 @@ func main() {
 	jiraProjectKey := os.Getenv("JIRA_PROJECT_KEY")
 	jiraHostname := os.Getenv("JIRA_HOSTNAME")
 	jiraAuthToken := os.Getenv("JIRA_AUTH_TOKEN")
+	jiraAuthEmail := os.Getenv("JIRA_AUTH)EMAIL")
 	jiraIssueType := os.Getenv("JIRA_ISSUE_TYPE")
 	syncedLabel := os.Getenv("SYNCED_LABEL")
 	acceptedLabel := os.Getenv("ACCEPTED_LABEL")
-	fmt.Printf("********** %s", githubRepositoryOwner)
 
 	if githubRepositoryOwner == "" {
 		log.Fatal("GITHUB_OWNER not set")
@@ -88,6 +88,10 @@ func main() {
 
 	if jiraAuthToken == "" {
 		log.Fatal("JIRA_AUTH_TOKEN not set")
+	}
+
+	if jiraAuthEmail == "" {
+		log.Fatal("JIRA_AUTH_EMAIL not set")
 	}
 
 	issueNumber, err := strconv.Atoi(githubIssueNumber)
@@ -116,11 +120,10 @@ func main() {
 		Project:     IssueKey{Key: jiraProjectKey},
 		Summary:     *issue.Title,
 		Description: jirafyBodyMarkdown(issue),
-		IssueUrl:    IssueValue{Value: *issue.URL},
 		IssueType:   IssueName{Name: jiraIssueType},
 	}}
 
-	err = createJiraIssue(newIssue, jiraHostname, jiraAuthToken)
+	err = createJiraIssue(newIssue, jiraHostname, jiraAuthToken, jiraAuthEmail)
 
 	if err != nil {
 		log.Fatalf("error create new issue to jira %s/%s#%d: %s", githubRepositoryOwner, githubRepositoryName, issueNumber, err)
@@ -165,41 +168,47 @@ func newGithubClient(ctx context.Context, accessToken string) *github.Client {
 	return github.NewClient(tc)
 }
 
-func createJiraIssue(issue NewJiraIssue, jiraHostname, jiraAuthToken string) error {
+func createJiraIssue(issue NewJiraIssue, jiraHostname, jiraAuthToken, jiraAuthEmail string) error {
 	res, err := json.Marshal(issue)
 	if err != nil {
-		return err
+		log.Fatalf("error marshal new jira issue for %s, err: %s", issue.Fields.Project.Key, err)
 	}
 
 	url := fmt.Sprintf("https://%s/rest/api/latest/issue/", jiraHostname)
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(res))
 	if err != nil {
-		return err
+		log.Fatalf("failed to build HTTP request: %s", err)
 	}
 
-	req.Header.Set("authorization", "Basic "+jiraAuthToken)
+	req.Header.Set("Authorization", fmt.Sprintf("Basic %s", basicAuth(jiraAuthEmail, jiraAuthToken)))
 	req.Header.Set("content-type", "application/json")
 
 	httpClient := &http.Client{}
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return err
+		panic(err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		log.Fatalf("failed to read response body: %s", err)
 	}
 
 	var createdIssue IssueCreationResponse
 	json.Unmarshal([]byte(body), &createdIssue)
 
 	if resp.StatusCode != http.StatusCreated {
-		return err
+		fmt.Printf("failed to create new JIRA issue. statusCode: %d", resp.StatusCode)
+		os.Exit(1)
 	}
 
 	fmt.Printf("successfully created internal JIRA issue: %s", createdIssue.Key)
 
 	return nil
+}
+
+func basicAuth(email, token string) string {
+	auth := email + ":" + token
+	return base64.StdEncoding.EncodeToString([]byte(auth))
 }
