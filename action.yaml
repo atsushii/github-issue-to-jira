@@ -17,6 +17,10 @@ inputs:
     description: "Github Token"
     default: ""
     required: true
+  github_issue_number:
+    description: "The labeled issue"
+    default: ${{ github.event.issue.number }}
+    required: false
   jira_project_key:
     description: "Jira Project Key for sync"
     default: ""
@@ -41,33 +45,29 @@ inputs:
     description: "Sync if issue has set this label"
     default: "triage/accepted"
     required: false
-  since:
-    description: "Only fetch issues, based on updated time after the given time. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ."
-    default: ""
-    required: false
-  per_page:
-    description: "The number of fetch latest issues"
-    default: "5"
-    required: false
-  github_issue_number:
-    description: "The number of fetch latest issues"
-    default: ${{ github.event.issue.number }}
-    required: false
 runs:
   using: "composite"
   steps:
-    - run: go run ${{ github.action_path }}/main.go
+    - run: |
+        GITHUB_OWNER="${{ inputs.github_owner }}"
+        GITHUB_REPO="${{ inputs.github_repo }}"
+        GITHUB_TOKEN="${{ inputs.github_token }}"
+        GITHUB_ISSUE_NUMBER="${{ inputs.github_issue_number }}"
+        JIRA_PROJECT_KEY="${{ inputs.jira_project_key }}"
+        JIRA_HOSTNAME="${{ inputs.jira_hostname }}"
+        JIRA_AUTH_TOKEN="${{ inputs.jira_auth_token }}"
+        JIRA_ISSUE_TYPE="${{ inputs.jira_issue_type }}
+        SYNCED_LABEL="${{ inputs.synced_label }}"
+        ACCEPTED_LABEL="${{ inputs.accepted_label }}"
+        echo "GITHUB_OWNER=${GITHUB_OWNER}" >> $GITHUB_ENV
+        echo "GITHUB_REPO=${GITHUB_REPO}" >> $GITHUB_ENV
+        echo "GITHUB_TOKEN=${GITHUB_TOKEN}" >> $GITHUB_ENV
+        echo "GITHUB_ISSUE_NUMBER=${GITHUB_ISSUE_NUMBER}" >> $GITHUB_ENV
+        echo "JIRA_PROJECT_KEY=${JIRA_PROJECT_KEY}" >> $GITHUB_ENV
+        echo "JIRA_HOSTNAME=${JIRA_HOSTNAME}" >> $GITHUB_ENV
+        echo "JIRA_AUTH_TOKEN=${JIRA_AUTH_TOKEN}" >> $GITHUB_ENV
+        echo "JIRA_ISSUE_TYPE=${JIRA_ISSUE_TYPE}" >> $GITHUB_ENV
+        echo "SYNCED_LABEL=${SYNCED_LABEL}" >> $GITHUB_ENV
+        echo "ACCEPTED_LABEL=${ACCEPTED_LABEL}" >> $GITHUB_ENV
+        go run ${{ github.action_path }}/main.go
       shell: bash
-      env:
-        INPUT_GITHUB_OWNER:     ${{ inputs.github_owner }}
-        INPUT_GITHUB_REPO:      ${{ inputs.github_repo }}
-        INPUT_GITHUB_TOKEN:     ${{ inputs.github_token }}
-        INPUT_JIRA_PROJECT_KEY: ${{ inputs.jira_project_key }}
-        INPUT_JIRA_HOSTNAME:    ${{ inputs.jira_hostname }}
-        INPUT_JIRA_AUTH_TOKEN:  ${{ inputs.jira_auth_token }}
-        INPUT_JIRA_ISSUE_TYPE:  ${{ inputs.jira_issue_type }}
-        INPUT_SYNCED_LABEL:     ${{ inputs.synced_label }}
-        INPUT_ACCEPTED_LABEL:   ${{ inputs.accepted_label }}
-        INPUT_SINCE:            ${{ inputs.since }}
-        INPUT_PER_PAGE:         ${{ inputs.per_page }}
-        INPUT_GITHUB_ISSUE_NUMBER:         ${{ inputs.github_issue_number }}

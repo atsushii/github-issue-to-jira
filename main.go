@@ -54,16 +54,16 @@ type IssueCreationResult struct {
 func main() {
 	ctx := context.Background()
 
-	githubRepositoryOwner := os.Getenv("INPUT_GITHUB_OWNER")
-	githubRepositoryName := os.Getenv("INPUT_GITHUB_REPO")
-	githubAccessToken := os.Getenv("INPUT_GITHUB_TOKEN")
-	githubIssueNumber := os.Getenv("INPUT_GITHUB_ISSUE_NUMBER")
-	jiraProjectKey := os.Getenv("INPUT_JIRA_PROJECT_KEY")
-	jiraHostname := os.Getenv("INPUT_JIRA_HOSTNAME")
-	jiraAuthToken := os.Getenv("INPUT_JIRA_AUTH_TOKEN")
-	jiraIssueType := os.Getenv("INPUT_JIRA_ISSUE_TYPE")
-	syncedLabel := os.Getenv("INPUT_SYNCED_LABEL")
-	acceptedLabel := os.Getenv("INPUT_ACCEPTED_LABEL")
+	githubRepositoryOwner := os.Getenv("GITHUB_OWNER")
+	githubRepositoryName := os.Getenv("GITHUB_REPO")
+	githubAccessToken := os.Getenv("GITHUB_TOKEN")
+	githubIssueNumber := os.Getenv("GITHUB_ISSUE_NUMBER")
+	jiraProjectKey := os.Getenv("JIRA_PROJECT_KEY")
+	jiraHostname := os.Getenv("JIRA_HOSTNAME")
+	jiraAuthToken := os.Getenv("JIRA_AUTH_TOKEN")
+	jiraIssueType := os.Getenv("JIRA_ISSUE_TYPE")
+	syncedLabel := os.Getenv("SYNCED_LABEL")
+	acceptedLabel := os.Getenv("ACCEPTED_LABEL")
 	fmt.Printf("********** %s", githubRepositoryOwner)
 
 	if githubRepositoryOwner == "" {
