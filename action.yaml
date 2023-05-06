@@ -1,4 +1,4 @@
-name: Sync Github Issue to Jira
+name: github-issue-2-jira
 description: Allow your Github Issue to Jira automatically.
 author: Atsushi Miyamoto
 branding:
