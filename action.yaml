@@ -56,7 +56,7 @@ runs:
         JIRA_PROJECT_KEY="${{ inputs.jira_project_key }}"
         JIRA_HOSTNAME="${{ inputs.jira_hostname }}"
         JIRA_AUTH_TOKEN="${{ inputs.jira_auth_token }}"
-        JIRA_ISSUE_TYPE="${{ inputs.jira_issue_type }}
+        JIRA_ISSUE_TYPE="${{ inputs.jira_issue_type }}"
         SYNCED_LABEL="${{ inputs.synced_label }}"
         ACCEPTED_LABEL="${{ inputs.accepted_label }}"
         echo "GITHUB_OWNER=${GITHUB_OWNER}" >> $GITHUB_ENV
