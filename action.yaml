@@ -1,11 +1,6 @@
 name: Sync Github Issue to Jira
 description: Allow your Github Issue to Jira automatically.
 author: Atsushi Miyamoto
-runs:
-  using: "composite"
-  steps:
-    - run: go run ${{ github.action_path }}/main.go ${{ inputs.test-input }}
-      shell: bash
 branding:
   icon: plus
   color: green
@@ -20,8 +15,8 @@ inputs:
     required: true
   github_token:
     description: "Github Token"
-    default: ""
-    required: true
+    default: ${{ github.token }}
+    required: false
   jira_project_key:
     description: "Jira Project Key for sync"
     default: ""
@@ -54,3 +49,25 @@ inputs:
     description: "The number of fetch latest issues"
     default: "5"
     required: false
+  github_issue_number:
+    description: "The number of fetch latest issues"
+    default: ${{ github.event.issue.number }}
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - run: go run ${{ github.action_path }}/main.go
+      shell: bash
+      env:
+        INPUT_GITHUB_OWNER:     ${{ inputs.github_owner }}
+        INPUT_GITHUB_REPO:      ${{ inputs.github_repo }}
+        INPUT_GITHUB_TOKEN:     ${{ inputs.github_token }}
+        INPUT_JIRA_PROJECT_KEY: ${{ inputs.jira_project_key }}
+        INPUT_JIRA_HOSTNAME:    ${{ inputs.jira_hostname }}
+        INPUT_JIRA_AUTH_TOKEN:  ${{ inputs.jira_auth_token }}
+        INPUT_JIRA_ISSUE_TYPE:  ${{ inputs.jira_issue_type }}
+        INPUT_SYNCED_LABEL:     ${{ inputs.synced_label }}
+        INPUT_ACCEPTED_LABEL:   ${{ inputs.accepted_label }}
+        INPUT_SINCE:            ${{ inputs.since }}
+        INPUT_PER_PAGE:         ${{ inputs.per_page }}
+        INPUT_GITHUB_ISSUE_NUMBER:         ${{ inputs.github_issue_number }}

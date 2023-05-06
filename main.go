@@ -19,11 +19,7 @@ import (
 )
 
 var (
-	syncedLabel = "workflow/synced"
-	acceptedLabel = "triage/accepted"
 	since = time.Now().Add(3 * time.Minute)
-	perPage = 5
-	jiraIssueType = "Bug"
 )
 
 type IssueName struct {
@@ -67,16 +63,18 @@ func main() {
 	githubRepositoryOwner := os.Getenv("GITHUB_OWNER")
 	githubRepositoryName := os.Getenv("GITHUB_REPO")
 	githubAccessToken := os.Getenv("GITHUB_TOKEN")
+	githubIssueNumber := os.Getenv("INPUT_GITHUB_ISSUE_NUMBER")
 	jiraProjectKey := os.Getenv("JIRA_PROJECT_KEY")
 	jiraHostname := os.Getenv("JIRA_HOSTNAME")
 	jiraAuthToken := os.Getenv("JIRA_AUTH_TOKEN")
 	accessClientID := os.Getenv("CF_ACCESS_CLIENT_ID")
 	accessClientSecret := os.Getenv("CF_ACCESS_CLIENT_SECRET")
-	inputJiraIssueType := os.Getenv("JIRA_ISSUE_TYPE")
-	inputSyncedLabel := os.Getenv("SYNCED_LABEL")
-	inputAcceptedLabel := os.Getenv("ACCEPTED_LABEL")
+	jiraIssueType := os.Getenv("JIRA_ISSUE_TYPE")
+	syncedLabel := os.Getenv("SYNCED_LABEL")
+	acceptedLabel := os.Getenv("ACCEPTED_LABEL")
 	inputSince := os.Getenv("SINCE")
 	inputPerPage := os.Getenv("PER_PAGE")
+	fmt.Printf("********** %s", githubIssueNumber)
 
 	if githubRepositoryOwner == "" {
 		log.Fatal("GITHUB_OWNER not set")
@@ -102,24 +100,12 @@ func main() {
 		log.Fatal("JIRA_AUTH_TOKEN not set")
 	}
 
-	if inputJiraIssueType != "" {
-		jiraIssueType = inputJiraIssueType
-	}
-
 	if accessClientID == "" {
 		log.Fatal("CF_ACCESS_CLIENT_ID not set")
 	}
 
 	if accessClientSecret == "" {
 		log.Fatal("CF_ACCESS_CLIENT_SECRET not set")
-	}
-
-	if inputSyncedLabel != "" {
-		syncedLabel = inputSyncedLabel
-	}
-
-	if inputAcceptedLabel != "" {
-		acceptedLabel = inputAcceptedLabel
 	}
 
 	if inputSince != "" {
@@ -130,13 +116,10 @@ func main() {
 		since = sinceTime
 	}
 
-	if inputPerPage != "" {
-		perPageNum, err := strconv.Atoi(inputPerPage)
+	perPage, err := strconv.Atoi(inputPerPage)
 		if err != nil {
 			log.Fatalf("error parse provided perPage: %s, err: %s",inputPerPage, err)
 		}
-		perPage = perPageNum
-	}
 
 	client := newGithubClient(ctx, githubAccessToken)
 
@@ -144,7 +127,7 @@ func main() {
 	issues, _, err := client.Issues.ListByRepo(ctx, githubRepositoryOwner, githubRepositoryName, &github.IssueListByRepoOptions{
 		Sort:   "updated",
 		Direction: "desc",
-		Labels: []string{inputAcceptedLabel},
+		Labels: []string{acceptedLabel},
 		Since: since,
 		ListOptions: github.ListOptions{
 			PerPage: perPage,
@@ -160,7 +143,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	newIssues := newJiraIssues(ctx, client, issues, jiraProjectKey, jiraIssueType)
+	newIssues := newJiraIssues(ctx, client, issues, jiraProjectKey, jiraIssueType, acceptedLabel, syncedLabel)
 
 	if len(newIssues) == 0 {
 		fmt.Println("no unsynced issue is existing")
@@ -220,7 +203,7 @@ func newGithubClient(ctx context.Context, accessToken string)*github.Client {
 	return github.NewClient(tc)
 }
 
-func newJiraIssues(ctx context.Context, client *github.Client, githubIssues []*github.Issue, jiraProjectKey, jiraIssueType string)[]NewJiraIssue {
+func newJiraIssues(ctx context.Context, client *github.Client, githubIssues []*github.Issue, jiraProjectKey, jiraIssueType, acceptedLabel, syncedLabel string)[]NewJiraIssue {
 	newIssues := make([]NewJiraIssue, 0, len(githubIssues))
 	for _, issue := range githubIssues {	
 		if hasLabel(issue, syncedLabel) {
