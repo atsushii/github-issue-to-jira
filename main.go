@@ -63,12 +63,10 @@ func main() {
 	githubRepositoryOwner := os.Getenv("GITHUB_OWNER")
 	githubRepositoryName := os.Getenv("GITHUB_REPO")
 	githubAccessToken := os.Getenv("GITHUB_TOKEN")
-	githubIssueNumber := os.Getenv("INPUT_GITHUB_ISSUE_NUMBER")
+	githubIssueNumber := os.Getenv("GITHUB_ISSUE_NUMBER")
 	jiraProjectKey := os.Getenv("JIRA_PROJECT_KEY")
 	jiraHostname := os.Getenv("JIRA_HOSTNAME")
 	jiraAuthToken := os.Getenv("JIRA_AUTH_TOKEN")
-	accessClientID := os.Getenv("CF_ACCESS_CLIENT_ID")
-	accessClientSecret := os.Getenv("CF_ACCESS_CLIENT_SECRET")
 	jiraIssueType := os.Getenv("JIRA_ISSUE_TYPE")
 	syncedLabel := os.Getenv("SYNCED_LABEL")
 	acceptedLabel := os.Getenv("ACCEPTED_LABEL")
@@ -98,14 +96,6 @@ func main() {
 
 	if jiraAuthToken == "" {
 		log.Fatal("JIRA_AUTH_TOKEN not set")
-	}
-
-	if accessClientID == "" {
-		log.Fatal("CF_ACCESS_CLIENT_ID not set")
-	}
-
-	if accessClientSecret == "" {
-		log.Fatal("CF_ACCESS_CLIENT_SECRET not set")
 	}
 
 	if inputSince != "" {
@@ -150,7 +140,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	result := createJiraIssues(newIssues, jiraHostname, jiraAuthToken, accessClientID, accessClientSecret)
+	result := createJiraIssues(newIssues, jiraHostname, jiraAuthToken)
 
 	for _, issue := range result.Failed {
 		log.Printf("error create issue. github issue url: %s, err: %s", issue.Fields.IssueUrl.Value, err)
@@ -227,7 +217,7 @@ func newJiraIssues(ctx context.Context, client *github.Client, githubIssues []*g
 	return newIssues
 }
 
-func createJiraIssues(issues []NewJiraIssue, jiraHostname, jiraAuthToken, accessClientID, accessClientSecret string) IssueCreationResult {
+func createJiraIssues(issues []NewJiraIssue, jiraHostname, jiraAuthToken string) IssueCreationResult {
 	result := IssueCreationResult{}
 	for _, issue := range issues {
 		res, err := json.Marshal(issue)
@@ -244,8 +234,6 @@ func createJiraIssues(issues []NewJiraIssue, jiraHostname, jiraAuthToken, access
 		}
 	
 		req.Header.Set("authorization", "Basic "+jiraAuthToken)
-		req.Header.Set("cf-access-client-id", accessClientID)
-		req.Header.Set("cf-access-client-secret", accessClientSecret)
 		req.Header.Set("content-type", "application/json")
 	
 		httpClient := &http.Client{}

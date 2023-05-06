@@ -15,8 +15,8 @@ inputs:
     required: true
   github_token:
     description: "Github Token"
-    default: ${{ github.token }}
-    required: false
+    default: ""
+    required: true
   jira_project_key:
     description: "Jira Project Key for sync"
     default: ""
@@ -59,15 +59,15 @@ runs:
     - run: go run ${{ github.action_path }}/main.go
       shell: bash
       env:
-        INPUT_GITHUB_OWNER:     ${{ inputs.github_owner }}
-        INPUT_GITHUB_REPO:      ${{ inputs.github_repo }}
-        INPUT_GITHUB_TOKEN:     ${{ inputs.github_token }}
-        INPUT_JIRA_PROJECT_KEY: ${{ inputs.jira_project_key }}
-        INPUT_JIRA_HOSTNAME:    ${{ inputs.jira_hostname }}
-        INPUT_JIRA_AUTH_TOKEN:  ${{ inputs.jira_auth_token }}
-        INPUT_JIRA_ISSUE_TYPE:  ${{ inputs.jira_issue_type }}
-        INPUT_SYNCED_LABEL:     ${{ inputs.synced_label }}
-        INPUT_ACCEPTED_LABEL:   ${{ inputs.accepted_label }}
-        INPUT_SINCE:            ${{ inputs.since }}
-        INPUT_PER_PAGE:         ${{ inputs.per_page }}
-        INPUT_GITHUB_ISSUE_NUMBER:         ${{ inputs.github_issue_number }}
+        GITHUB_OWNER:     ${{ inputs.github_owner }}
+        GITHUB_REPO:      ${{ inputs.github_repo }}
+        GITHUB_TOKEN:     ${{ inputs.github_token }}
+        JIRA_PROJECT_KEY: ${{ inputs.jira_project_key }}
+        JIRA_HOSTNAME:    ${{ inputs.jira_hostname }}
+        JIRA_AUTH_TOKEN:  ${{ inputs.jira_auth_token }}
+        JIRA_ISSUE_TYPE:  ${{ inputs.jira_issue_type }}
+        SYNCED_LABEL:     ${{ inputs.synced_label }}
+        ACCEPTED_LABEL:   ${{ inputs.accepted_label }}
+        SINCE:            ${{ inputs.since }}
+        PER_PAGE:         ${{ inputs.per_page }}
+        GITHUB_ISSUE_NUMBER:         ${{ inputs.github_issue_number }}
