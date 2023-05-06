@@ -61,7 +61,7 @@ func main() {
 	jiraProjectKey := os.Getenv("JIRA_PROJECT_KEY")
 	jiraHostname := os.Getenv("JIRA_HOSTNAME")
 	jiraAuthToken := os.Getenv("JIRA_AUTH_TOKEN")
-	jiraAuthEmail := os.Getenv("JIRA_AUTH)EMAIL")
+	jiraAuthEmail := os.Getenv("JIRA_AUTH_EMAIL")
 	jiraIssueType := os.Getenv("JIRA_ISSUE_TYPE")
 	syncedLabel := os.Getenv("SYNCED_LABEL")
 	acceptedLabel := os.Getenv("ACCEPTED_LABEL")
