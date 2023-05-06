@@ -9,17 +9,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/google/go-github/v52/github"
 	"golang.org/x/oauth2"
-)
-
-var (
-	since = time.Now().Add(3 * time.Minute)
 )
 
 type IssueName struct {
@@ -35,11 +29,11 @@ type IssueKey struct {
 }
 
 type IssueFields struct {
-	Project     IssueKey     `json:"project"`
-	Summary     string       `json:"summary"`
-	Description string       `json:"description"`
+	Project     IssueKey   `json:"project"`
+	Summary     string     `json:"summary"`
+	Description string     `json:"description"`
 	IssueUrl    IssueValue `json:"customfield_10016"`
-	IssueType   IssueName    `json:"issuetype"`
+	IssueType   IssueName  `json:"issuetype"`
 }
 
 type NewJiraIssue struct {
@@ -54,7 +48,7 @@ type IssueCreationResponse struct {
 
 type IssueCreationResult struct {
 	Success []NewJiraIssue `json:"success"`
-	Failed []NewJiraIssue `json:"failed"`
+	Failed  []NewJiraIssue `json:"failed"`
 }
 
 func main() {
@@ -70,9 +64,7 @@ func main() {
 	jiraIssueType := os.Getenv("INPUT_JIRA_ISSUE_TYPE")
 	syncedLabel := os.Getenv("INPUT_SYNCED_LABEL")
 	acceptedLabel := os.Getenv("INPUT_ACCEPTED_LABEL")
-	inputSince := os.Getenv("INPUT_SINCE")
-	inputPerPage := os.Getenv("INPUT_PER_PAGE")
-	fmt.Printf("********** %s", githubIssueNumber)
+	fmt.Printf("********** %s", githubRepositoryOwner)
 
 	if githubRepositoryOwner == "" {
 		log.Fatal("GITHUB_OWNER not set")
@@ -98,65 +90,45 @@ func main() {
 		log.Fatal("JIRA_AUTH_TOKEN not set")
 	}
 
-	if inputSince != "" {
-		sinceTime, err := time.Parse("2006-01-02T15:04:05Z", inputSince)
-		if err != nil {
-			log.Fatalf("error parse provided since: %s, err: %s",inputSince, err)
-		}
-		since = sinceTime
+	issueNumber, err := strconv.Atoi(githubIssueNumber)
+	if err != nil {
+		log.Fatalf("error parse provided perPage: %s, err: %s", githubIssueNumber, err)
 	}
-
-	perPage, err := strconv.Atoi(inputPerPage)
-		if err != nil {
-			log.Fatalf("error parse provided perPage: %s, err: %s",inputPerPage, err)
-		}
 
 	client := newGithubClient(ctx, githubAccessToken)
 
-	// get latest labeled issue
-	issues, _, err := client.Issues.ListByRepo(ctx, githubRepositoryOwner, githubRepositoryName, &github.IssueListByRepoOptions{
-		Sort:   "updated",
-		Direction: "desc",
-		Labels: []string{acceptedLabel},
-		Since: since,
-		ListOptions: github.ListOptions{
-			PerPage: perPage,
-		},
-	})
+	issue, _, err := client.Issues.Get(ctx, githubRepositoryOwner, githubRepositoryName, issueNumber)
+	if err != nil {
+		log.Fatalf("error retrieving issue %s/%s#%d: %s", githubRepositoryOwner, githubRepositoryName, issueNumber, err)
+	}
+
+	if hasLabel(issue, syncedLabel) {
+		log.Printf("issue is already marked as synced (%s), skipping", syncedLabel)
+		os.Exit(0)
+	}
+
+	if !hasLabel(issue, acceptedLabel) {
+		log.Printf("issue is not marked as ready for syncing using %s, skipping", acceptedLabel)
+		os.Exit(0)
+	}
+
+	newIssue := NewJiraIssue{Fields: IssueFields{
+		Project:     IssueKey{Key: jiraProjectKey},
+		Summary:     *issue.Title,
+		Description: jirafyBodyMarkdown(issue),
+		IssueUrl:    IssueValue{Value: *issue.URL},
+		IssueType:   IssueName{Name: jiraIssueType},
+	}}
+
+	err = createJiraIssue(newIssue, jiraHostname, jiraAuthToken)
 
 	if err != nil {
-		log.Fatalf("error retrieving latest labeled issues %s/%s: %s", githubRepositoryOwner, githubRepositoryName, err)
+		log.Fatalf("error create new issue to jira %s/%s#%d: %s", githubRepositoryOwner, githubRepositoryName, issueNumber, err)
 	}
 
-	if len(issues) == 0 {
-		fmt.Println("no accepted issue detected; exiting without creating a new JIRA issue")
-		os.Exit(0)
-	}
-
-	newIssues := newJiraIssues(ctx, client, issues, jiraProjectKey, jiraIssueType, acceptedLabel, syncedLabel)
-
-	if len(newIssues) == 0 {
-		fmt.Println("no unsynced issue is existing")
-		os.Exit(0)
-	}
-
-	result := createJiraIssues(newIssues, jiraHostname, jiraAuthToken)
-
-	for _, issue := range result.Failed {
-		log.Printf("error create issue. github issue url: %s, err: %s", issue.Fields.IssueUrl.Value, err)
-	}
-
-	for _, issue := range result.Success {
-		issueNumber, err := getIssueNumber(issue.Fields.IssueUrl.Value)
-		if err != nil {
-			log.Printf("error adding synced label for issue %s/%s#%d: %s", githubRepositoryOwner, githubRepositoryName, issueNumber, err)
-			continue
-		}	
-
-		_, _, err = client.Issues.AddLabelsToIssue(ctx, githubRepositoryOwner, githubRepositoryName, issueNumber, []string{syncedLabel})
-		if err != nil {
-			log.Printf("error adding synced label for issue %s/%s#%d: %s", githubRepositoryOwner, githubRepositoryName, issueNumber, err)
-		}	
+	_, _, err = client.Issues.AddLabelsToIssue(ctx, githubRepositoryOwner, githubRepositoryName, issueNumber, []string{syncedLabel})
+	if err != nil {
+		log.Printf("error adding synced label for issue %s/%s#%d: %s", githubRepositoryOwner, githubRepositoryName, issueNumber, err)
 	}
 
 	os.Exit(0)
@@ -184,7 +156,7 @@ func jirafyBodyMarkdown(issue *github.Issue) string {
 	return output
 }
 
-func newGithubClient(ctx context.Context, accessToken string)*github.Client {
+func newGithubClient(ctx context.Context, accessToken string) *github.Client {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: accessToken},
 	)
@@ -193,84 +165,41 @@ func newGithubClient(ctx context.Context, accessToken string)*github.Client {
 	return github.NewClient(tc)
 }
 
-func newJiraIssues(ctx context.Context, client *github.Client, githubIssues []*github.Issue, jiraProjectKey, jiraIssueType, acceptedLabel, syncedLabel string)[]NewJiraIssue {
-	newIssues := make([]NewJiraIssue, 0, len(githubIssues))
-	for _, issue := range githubIssues {	
-		if hasLabel(issue, syncedLabel) {
-			log.Printf("issue is already marked as synced (%s), skipping", syncedLabel)
-			continue
-		}
-	
-		if !hasLabel(issue, acceptedLabel) {
-			log.Printf("issue is not marked as ready for syncing using %s, skipping", acceptedLabel)
-			continue
-		}
-
-		newIssues = append(newIssues, NewJiraIssue{Fields: IssueFields{
-			Project:     IssueKey{Key: jiraProjectKey},
-			Summary:     *issue.Title,
-			Description: jirafyBodyMarkdown(issue),
-			IssueUrl: IssueValue{Value: *issue.URL},
-			IssueType:   IssueName{Name: jiraIssueType},
-		}})
-	}
-	return newIssues
-}
-
-func createJiraIssues(issues []NewJiraIssue, jiraHostname, jiraAuthToken string) IssueCreationResult {
-	result := IssueCreationResult{}
-	for _, issue := range issues {
-		res, err := json.Marshal(issue)
-		if err != nil {
-			result.Failed = append(result.Failed, issue)
-			continue
-		}
-	
-		url := fmt.Sprintf("https://%s/rest/api/latest/issue/", jiraHostname)
-		req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(res))
-		if err != nil {
-			result.Failed = append(result.Failed, issue)
-			continue
-		}
-	
-		req.Header.Set("authorization", "Basic "+jiraAuthToken)
-		req.Header.Set("content-type", "application/json")
-	
-		httpClient := &http.Client{}
-		resp, err := httpClient.Do(req)
-		if err != nil {
-			result.Failed = append(result.Failed, issue)
-			continue
-		}
-		defer resp.Body.Close()
-	
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			result.Failed = append(result.Failed, issue)
-			continue
-		}
-	
-		var createdIssue IssueCreationResponse
-		json.Unmarshal([]byte(body), &createdIssue)
-	
-		if resp.StatusCode != http.StatusCreated {
-			result.Failed = append(result.Failed, issue)
-			continue
-		}
-		fmt.Printf("successfully created internal JIRA issue: %s", createdIssue.Key)
-		result.Success = append(result.Success, issue)
-	}
-	return result
-}
-
-func getIssueNumber(issueUrl string) (int, error) {
-	re := regexp.MustCompile(`/(\d+)$`)
-	issueNumberStr := re.FindStringSubmatch(issueUrl)[1]
-
-	issueNumber, err := strconv.Atoi(issueNumberStr)
+func createJiraIssue(issue NewJiraIssue, jiraHostname, jiraAuthToken string) error {
+	res, err := json.Marshal(issue)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return issueNumber, nil
+	url := fmt.Sprintf("https://%s/rest/api/latest/issue/", jiraHostname)
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(res))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("authorization", "Basic "+jiraAuthToken)
+	req.Header.Set("content-type", "application/json")
+
+	httpClient := &http.Client{}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	var createdIssue IssueCreationResponse
+	json.Unmarshal([]byte(body), &createdIssue)
+
+	if resp.StatusCode != http.StatusCreated {
+		return err
+	}
+
+	fmt.Printf("successfully created internal JIRA issue: %s", createdIssue.Key)
+
+	return nil
 }
