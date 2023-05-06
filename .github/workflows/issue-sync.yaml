@@ -12,7 +12,7 @@ jobs:
         with:
           go-version: '^1.19.0' 
       - name: Sync
-        uses: atsushii/github-issue-2-jira@main
+        uses: atsushii/github-issue-2-jira@v1
         env:
           GITHUB_OWNER: atsushii
           GITHUB_REPO: github-issue-to-jira
