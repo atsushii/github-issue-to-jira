@@ -35,22 +35,22 @@ on:
 jobs:
   issue-sync:
     runs-on: ubuntu-latest
-steps:
-  - uses: actions/checkout@v3
-  - name: Set up Go
-    uses: actions/setup-go@v4
-    with:
-      go-version: '>=1.19.0' # The Go version should be grater than 1.19.0
-  - name: Sync to Jira
-    uses: atsushii/github-issue-to-jira@v1
-    with:
-      github-owner: github-owner
-      github-repo: repository-name
-      github-token: ${{ secrets.GITHUB_TOKEN }} # read/write authorized token
-      jira-hostname: hostname # Your Sync dest Jira hostname
-      jira-auth-token: ${{ secrets.JIRA_AUTH_TOKEN }} # Your Jira auth token
-      jira-auth-email: ${{ secrets.JIRA_AUTH_EMAIL }} # email same as jira project creator
-      jira-project-key: project-key # Your Sync dest Jira project name
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.19.0' # The Go version should be grater than 1.19.0
+      - name: Sync to Jira
+        uses: atsushii/github-issue-to-jira@v1
+        with:
+          github-owner: github-owner
+          github-repo: repository-name
+          github-token: ${{ secrets.GITHUB_TOKEN }} # read/write authorized token
+          jira-hostname: hostname # Your Sync dest Jira hostname
+          jira-auth-token: ${{ secrets.JIRA_AUTH_TOKEN }} # Your Jira auth token
+          jira-auth-email: ${{ secrets.JIRA_AUTH_EMAIL }} # email same as jira project creator
+          jira-project-key: project-key # Your Sync dest Jira project name
 ```
 
 ## Using Custom Github issue label to sync/skip
@@ -101,23 +101,23 @@ on:
 jobs:
   issue-sync:
     runs-on: ubuntu-latest
-steps:
-  - uses: actions/checkout@v3
-  - name: Set up Go
-    uses: actions/setup-go@v4
-    with:
-      go-version: '>=1.19.0' # The Go version should be grater than 1.19.0
-  - name: Sync to Jira
-    uses: atsushii/github-issue-to-jira@v1
-    with:
-      github-owner: github-owner
-      github-repo: repository-name
-      github-token: ${{ secrets.GITHUB_TOKEN }} # read/write authorized token
-      jira-hostname: hostname # Your Sync dest Jira hostname
-      jira-auth-token: ${{ secrets.JIRA_AUTH_TOKEN }} # Your Jira auth token
-      jira-auth-email: ${{ secrets.JIRA_AUTH_EMAIL }} # email same as jira project creator
-      jira-project-key: project-key # Your Sync dest Jira project name
-      jira-issue-type: custom-jira-issue-type
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.19.0' # The Go version should be grater than 1.19.0
+      - name: Sync to Jira
+        uses: atsushii/github-issue-to-jira@v1
+        with:
+          github-owner: github-owner
+          github-repo: repository-name
+          github-token: ${{ secrets.GITHUB_TOKEN }} # read/write authorized token
+          jira-hostname: hostname # Your Sync dest Jira hostname
+          jira-auth-token: ${{ secrets.JIRA_AUTH_TOKEN }} # Your Jira auth token
+          jira-auth-email: ${{ secrets.JIRA_AUTH_EMAIL }} # email same as jira project creator
+          jira-project-key: project-key # Your Sync dest Jira project name
+          jira-issue-type: custom-jira-issue-type
 ```
 
 ## Set Specific Github Issue number
@@ -132,23 +132,23 @@ on:
 jobs:
   issue-sync:
     runs-on: ubuntu-latest
-steps:
-  - uses: actions/checkout@v3
-  - name: Set up Go
-    uses: actions/setup-go@v4
-    with:
-      go-version: '>=1.19.0' # The Go version should be grater than 1.19.0
-  - name: Sync to Jira
-    uses: atsushii/github-issue-to-jira@v1
-    with:
-      github-owner: github-owner
-      github-repo: repository-name
-      github-token: ${{ secrets.GITHUB_TOKEN }} # read/write authorized token
-      jira-hostname: hostname # Your Sync dest Jira hostname
-      jira-auth-token: ${{ secrets.JIRA_AUTH_TOKEN }} # Your Jira auth token
-      jira-auth-email: ${{ secrets.JIRA_AUTH_EMAIL }} # email same as jira project creator
-      jira-project-key: project-key # Your Sync dest Jira project name
-      github-issue-number: 1
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.19.0' # The Go version should be grater than 1.19.0
+      - name: Sync to Jira
+        uses: atsushii/github-issue-to-jira@v1
+        with:
+          github-owner: github-owner
+          github-repo: repository-name
+          github-token: ${{ secrets.GITHUB_TOKEN }} # read/write authorized token
+          jira-hostname: hostname # Your Sync dest Jira hostname
+          jira-auth-token: ${{ secrets.JIRA_AUTH_TOKEN }} # Your Jira auth token
+          jira-auth-email: ${{ secrets.JIRA_AUTH_EMAIL }} # email same as jira project creator
+          jira-project-key: project-key # Your Sync dest Jira project name
+          github-issue-number: 1
 ```
 
 # License
