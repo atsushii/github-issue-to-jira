@@ -28,6 +28,13 @@ See [action.yaml](action.yaml)
 ## Basic
 
 ```yaml
+name: Sync issues to jira
+on:
+  issues:
+    types: [labeled]　# should be set
+jobs:
+  issue-sync:
+    runs-on: ubuntu-latest
 steps:
   - uses: actions/checkout@v3
   - name: Set up Go
