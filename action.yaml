@@ -71,5 +71,5 @@ runs:
         ACCEPTED_LABEL:       ${{ inputs.accepted-label }}
       run: |
         chmod +x ${{ github.action_path }}/build/go1.19/action
-        ./${{ github.action_path }}/build/go1.19/action
+        ${{ github.action_path }}/build/go1.19/action
       shell: bash
