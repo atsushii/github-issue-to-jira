@@ -52,6 +52,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '>=1.19.0'
     - name: sync2jira     
       env:
         GITHUB_OWNER:         ${{ inputs.github-owner }}
