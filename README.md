@@ -53,6 +53,13 @@ The `accepted-label` flag defaults to `triage/accepted`. Use the default or set 
 The `synced-label` flag defaults to `workflow/synced`. Use the default or set your custom label to an acceptance label if you prefer.
 
 ```yaml
+name: Sync issues to jira
+on:
+  issues:
+    types: [labeled]　# should be set
+jobs:
+  issue-sync:
+    runs-on: ubuntu-latest
 steps:
   - uses: actions/checkout@v3
   - name: Set up Go
@@ -80,6 +87,13 @@ The `jira-issue-type` flag defaults to `Bug`. Use the default or set your custom
 **Note:** Set custom issue type, you need to create exact same issue type on Jira project first otherwise, Jira API will return 400.
 
 ```yaml
+name: Sync issues to jira
+on:
+  issues:
+    types: [labeled]　# should be set
+jobs:
+  issue-sync:
+    runs-on: ubuntu-latest
 steps:
   - uses: actions/checkout@v3
   - name: Set up Go
@@ -104,6 +118,13 @@ steps:
 The `github-issue-number` flag defaults to `${{ github.event.issue.number }}`. Which can get labeled issues internally, However, allow you to set specific issue numbers if you prefer.
 
 ```yaml
+name: Sync issues to jira
+on:
+  issues:
+    types: [labeled]　# should be set
+jobs:
+  issue-sync:
+    runs-on: ubuntu-latest
 steps:
   - uses: actions/checkout@v3
   - name: Set up Go
