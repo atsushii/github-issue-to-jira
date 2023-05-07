@@ -36,11 +36,6 @@ jobs:
   issue-sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '>=1.19.0' # The Go version should be grater than 1.19.0
       - name: Sync to Jira
         uses: atsushii/github-issue-to-jira@v1
         with:
@@ -68,11 +63,6 @@ jobs:
   issue-sync:
     runs-on: ubuntu-latest
 steps:
-  - uses: actions/checkout@v3
-  - name: Set up Go
-    uses: actions/setup-go@v4
-    with:
-      go-version: '>=1.19.0' # The Go version should be grater than 1.19.0
   - name: Sync to Jira
     uses: atsushii/github-issue-to-jira@v1
     with:
@@ -133,11 +123,6 @@ jobs:
   issue-sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '>=1.19.0' # The Go version should be grater than 1.19.0
       - name: Sync to Jira
         uses: atsushii/github-issue-to-jira@v1
         with:
