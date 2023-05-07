@@ -1,6 +1,5 @@
 module github.com/atsushii/sync-github-issue-to-jira
 
-
 go 1.19
 
 require (
