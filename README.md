@@ -12,7 +12,7 @@ The V1 edition of the action offers:
 
 - Sync Github issue to Jira
 - A custom acceptance label can be utilized as a synchronization target.
-- A custom synced label can be utilized as a synchronization　skipping.
+- A custom synced label can be utilized as a synchronization/skipping.
 - By applying a custom Jira issue type to a Jira ticket, it can be utilized.
 
 The action will first check if the labeled issue exists, then fetch the attached labels to check if the issue is already accepted by the organizer or checked already synced to Jira.
@@ -34,6 +34,8 @@ on:
     types: [labeled]　# should be set
 jobs:
   issue-sync:
+    permissions:
+      issues: write # should be set
     runs-on: ubuntu-latest
     steps:
       - name: Sync to Jira
@@ -61,6 +63,8 @@ on:
     types: [labeled]　# should be set
 jobs:
   issue-sync:
+    permissions:
+      issues: write # should be set
     runs-on: ubuntu-latest
 steps:
   - name: Sync to Jira
@@ -90,6 +94,8 @@ on:
     types: [labeled]　# should be set
 jobs:
   issue-sync:
+    permissions:
+      issues: write # should be set
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -121,6 +127,8 @@ on:
     types: [labeled]　# should be set
 jobs:
   issue-sync:
+    permissions:
+      issues: write # should be set
     runs-on: ubuntu-latest
     steps:
       - name: Sync to Jira
