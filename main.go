@@ -46,11 +46,6 @@ type IssueCreationResponse struct {
 	Self string `json:"self"`
 }
 
-type IssueCreationResult struct {
-	Success []NewJiraIssue `json:"success"`
-	Failed  []NewJiraIssue `json:"failed"`
-}
-
 func main() {
 	ctx := context.Background()
 
@@ -203,7 +198,7 @@ func createJiraIssue(issue NewJiraIssue, jiraHostname, jiraAuthToken, jiraAuthEm
 		os.Exit(1)
 	}
 
-	fmt.Printf("successfully created internal JIRA issue: %s", createdIssue.Key)
+	fmt.Printf("successfully created JIRA issue: %s", createdIssue.Key)
 
 	return nil
 }

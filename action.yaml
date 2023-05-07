@@ -5,47 +5,47 @@ branding:
   icon: plus
   color: green
 inputs:
-  github_owner:
+  github-owner:
     description: "Github Owner"
     default: ""
     required: true
-  github_repo:
+  github-repo:
     description: "Github Repository name"
     default: ""
     required: true
-  github_token:
+  github-token:
     description: "Github Token to access issue"
     default: ""
     required: true
-  github_issue_number:
+  github-issue-number:
     description: "Labeled issue"
     default: ${{ github.event.issue.number }}
     required: false
-  jira_project_key:
+  jira-project-key:
     description: "Jira Target Project"
     default: ""
     required: true
-  jira_hostname:
+  jira-hostname:
     description: "Jira hostname"
     default: ""
     required: true
-  jira_auth_token:
+  jira-auth-token:
     description: "Jira auth token for authentication."
     default: ""
     required: true
-  jira_auth_email:
+  jira-auth-email:
     description: "Jira user email for authentication."
     default: ""
     required: true
-  jira_issue_type:
+  jira-issue-type:
     description: "Jira issueType should be set for the Jira ticket."
     default: "Bug"
     required: false
-  synced_label:
+  synced-label:
     description: "Apply this label upon successful synchronization."
     default: "workflow/synced"
     required: false
-  accepted_label:
+  accepted-label:
     description: "Synchronize if the issue has this label applied."
     default: "triage/accepted"
     required: false
@@ -54,16 +54,16 @@ runs:
   steps:
     - name: sync2jira     
       env:
-        GITHUB_OWNER:         ${{ inputs.github_owner }}
-        GITHUB_REPO:          ${{ inputs.github_repo }}
-        GITHUB_TOKEN:         ${{ inputs.github_token }}
-        GITHUB_ISSUE_NUMBER:  ${{ inputs.github_issue_number }}
-        JIRA_PROJECT_KEY:     ${{ inputs.jira_project_key }}
-        JIRA_HOSTNAME:        ${{ inputs.jira_hostname }}
-        JIRA_AUTH_TOKEN:      ${{ inputs.jira_auth_token }}
-        JIRA_AUTH_EMAIL:      ${{ inputs.jira_auth_email }}
-        JIRA_ISSUE_TYPE:      ${{ inputs.jira_issue_type }}
-        SYNCED_LABEL:         ${{ inputs.synced_label }}
-        ACCEPTED_LABEL:       ${{ inputs.accepted_label }}
+        GITHUB_OWNER:         ${{ inputs.github-owner }}
+        GITHUB_REPO:          ${{ inputs.github-repo }}
+        GITHUB_TOKEN:         ${{ inputs.github-token }}
+        GITHUB_ISSUE_NUMBER:  ${{ inputs.github-issue-number }}
+        JIRA_PROJECT_KEY:     ${{ inputs.jira-project-key }}
+        JIRA_HOSTNAME:        ${{ inputs.jira-hostname }}
+        JIRA_AUTH_TOKEN:      ${{ inputs.jira-auth-token }}
+        JIRA_AUTH_EMAIL:      ${{ inputs.jira-auth-email }}
+        JIRA_ISSUE_TYPE:      ${{ inputs.jira-issue-type }}
+        SYNCED_LABEL:         ${{ inputs.synced-label }}
+        ACCEPTED_LABEL:       ${{ inputs.accepted-label }}
       run: go run ${{ github.action_path }}/main.go
       shell: bash
