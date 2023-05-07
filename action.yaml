@@ -55,7 +55,7 @@ runs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '>=1.19.0'
+        go-version: '1.19.x'
     - name: sync2jira     
       env:
         GITHUB_OWNER:         ${{ inputs.github-owner }}
@@ -69,5 +69,7 @@ runs:
         JIRA_ISSUE_TYPE:      ${{ inputs.jira-issue-type }}
         SYNCED_LABEL:         ${{ inputs.synced-label }}
         ACCEPTED_LABEL:       ${{ inputs.accepted-label }}
-      run: ${{ github.action_path }}/build/go1.19/action
+      run: |
+        chmod +x ${{ github.action_path }}/build/go1.19/action
+        ./${{ github.action_path }}/build/go1.19/action
       shell: bash
