@@ -65,5 +65,5 @@ runs:
         JIRA_ISSUE_TYPE:      ${{ inputs.jira-issue-type }}
         SYNCED_LABEL:         ${{ inputs.synced-label }}
         ACCEPTED_LABEL:       ${{ inputs.accepted-label }}
-      run: go run ${{ github.action_path }}/main.go
+      run: ${{ github.action_path }}/build/go1.19/action
       shell: bash
